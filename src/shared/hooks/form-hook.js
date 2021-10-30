@@ -1,10 +1,14 @@
-import { useCallback, useReducer } from "react";
+import { useCallback, useReducer } from 'react';
 
 const updateInput = (state, name, value, isValid) => {
   let isFormValid = true;
-  Object.keys(state.inputs).forEach(
-    (input) => (isFormValid = isFormValid && state.inputs[input].isValid)
-  );
+  Object.keys(state.inputs).forEach((input) => {
+    if (input === name) {
+      isFormValid = isFormValid && isValid;
+    } else {
+      isFormValid = isFormValid && state.inputs[input].isValid;
+    }
+  });
 
   return {
     ...state,
@@ -20,10 +24,37 @@ const updateInput = (state, name, value, isValid) => {
   };
 };
 
+const resetValues = (state) => {
+  const inputsUpdated = {};
+  const date = new Date();
+
+  Object.keys(state.inputs).forEach((input) => {
+    if (input === 'date') {
+      inputsUpdated[input] = {
+        value: date,
+        isValid: false,
+      };
+    } else {
+      inputsUpdated[input] = {
+        value: '',
+        isValid: false,
+      };
+    }
+  });
+
+  return {
+    ...state,
+    inputs: inputsUpdated,
+    isFormValid: false,
+  };
+};
+
 const fromReducer = (state, action) => {
   switch (action.type) {
-    case "INPUT_CHANGE":
+    case 'INPUT_CHANGE':
       return updateInput(state, action.name, action.value, action.isValid);
+    case 'RESET_FORM':
+      return resetValues(state);
     default:
       return state;
   }
@@ -38,12 +69,18 @@ export const useForm = (initialInputs, initialFormValidity) => {
   const [formState, dispatch] = useReducer(fromReducer, initialState);
   const onInputChange = useCallback((value, isValid, name) => {
     dispatch({
-      type: "INPUT_CHANGE",
-      name,
+      type: 'INPUT_CHANGE',
       value,
       isValid,
+      name,
     });
   }, []);
 
-  return [formState, onInputChange];
+  const resetFormValues = useCallback(() => {
+    dispatch({
+      type: 'RESET_FORM',
+    });
+  }, []);
+
+  return [formState, onInputChange, resetFormValues];
 };

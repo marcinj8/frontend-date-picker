@@ -1,10 +1,11 @@
-import "./App.css";
-import { EventCreator } from "./datePickerPage/";
+import './App.css';
+
+import { Layout } from './layout';
 
 function App() {
   return (
-    <div className="App">
-      <EventCreator />
+    <div className='App'>
+      <Layout />
     </div>
   );
 }

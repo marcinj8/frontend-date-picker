@@ -1,1 +1,1 @@
-export { EventCreator } from "./view";
+export { EventCreator } from './view';
